@@ -1,0 +1,49 @@
+{
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.9.0"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/api/index.php"
+    },
+    {
+      "source": "/index.php",
+      "destination": "/api/index.php"
+    },
+    {
+      "source": "/importar.php",
+      "destination": "/api/importar.php"
+    },
+    {
+      "source": "/titulados.php",
+      "destination": "/api/titulados.php"
+    },
+    {
+      "source": "/empleadores.php",
+      "destination": "/api/empleadores.php"
+    },
+    {
+      "source": "/cruces.php",
+      "destination": "/api/cruces.php"
+    },
+    {
+      "source": "/brechas.php",
+      "destination": "/api/brechas.php"
+    },
+    {
+      "source": "/simulacion.php",
+      "destination": "/api/simulacion.php"
+    },
+    {
+      "source": "/reportes.php",
+      "destination": "/api/reportes.php"
+    },
+    {
+      "source": "/exportar.php",
+      "destination": "/api/exportar.php"
+    }
+  ]
+}

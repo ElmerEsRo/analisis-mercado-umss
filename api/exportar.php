@@ -1,0 +1,17 @@
+<?php
+require_once __DIR__.'/lib/data.php';require_once __DIR__.'/lib/ui.php';
+$type=$_GET['type']??'';$format=$_GET['format']??'csv';
+function send_table(string $name,array $headers,array $rows,string $format): void{
+    if($format==='xls'){header('Content-Type: application/vnd.ms-excel; charset=UTF-8');header('Content-Disposition: attachment; filename="'.$name.'.xls"');echo "<meta charset='UTF-8'><table border='1'><tr>";foreach($headers as $h)echo '<th>'.htmlspecialchars($h,ENT_QUOTES,'UTF-8').'</th>';echo '</tr>';foreach($rows as $r){echo '<tr>';foreach($r as $v)echo '<td>'.htmlspecialchars((string)$v,ENT_QUOTES,'UTF-8').'</td>';echo '</tr>';}echo '</table>';exit;}
+    header('Content-Type: text/csv; charset=UTF-8');header('Content-Disposition: attachment; filename="'.$name.'.csv"');$out=fopen('php://output','w');fwrite($out,"\xEF\xBB\xBF");fputcsv($out,$headers,';');foreach($rows as $r)fputcsv($out,$r,';');fclose($out);exit;
+}
+if($type==='resumen'){
+    $rows=[];$t=dataset_bundle('titulados');$e=dataset_bundle('empleadores');
+    if($t){$r=$t['rows'];$m=$t['map'];$vida=numeric_values(values_for($r,$m['vida_profesional']??null));$sit=frequencies(values_for($r,$m['situacion_laboral']??null));$inter=frequencies(values_for($r,$m['interes_posgrado']??null));$act=count_match($sit,['trabajando un una organizacion','trabajando en una organizacion'])+count_match($sit,['emprendimiento propio']);$yes=count_match($inter,['si']);$rows[]=['Titulados','Respuestas',count($r)];$rows[]=['Titulados','Actividad laboral',pct($act,count($r))];$rows[]=['Titulados','Promedio de vida profesional',mean($vida)!==null?number_format(mean($vida),2).' años':'N/D'];$rows[]=['Titulados','Mediana',median($vida)!==null?number_format(median($vida),2).' años':'N/D'];$rows[]=['Titulados','Desviación estándar',stddev($vida)!==null?number_format(stddev($vida),2).' años':'N/D'];$rows[]=['Titulados','Interés en posgrado',pct($yes,array_sum($inter))];}
+    if($e){$r=$e['rows'];$m=$e['map'];$cont=frequencies(values_for($r,$m['contrato_5']??null));$fut=frequencies(values_for($r,$m['contratacion_futura']??null));$yes=count_match($cont,['si']);$pos=count_match($fut,['alta probabilidad'])+count_match($fut,['dependiendo del crecimiento']);$rows[]=['Empleadores','Organizaciones',count($r)];$rows[]=['Empleadores','Contrató Ing. de Sistemas',pct($yes,array_sum($cont))];$rows[]=['Empleadores','Posibilidad de contratación futura',pct($pos,array_sum($fut))];}
+    send_table('reporte_resumen_'.date('Ymd_His'),['Fuente','Indicador','Resultado'],$rows,$format);
+}
+if($type==='cruce'){
+    $b=dataset_bundle('titulados');if(!$b)die('No hay datos de titulados');$a=$_GET['a']??'';$bb=$_GET['b']??'';if(!$a||!$bb||!in_array($a,$b['headers'],true)||!in_array($bb,$b['headers'],true))die('Variables inválidas');[$ac,$bc,$mx,$nn]=contingency($b['rows'],$a,$bb);$rows=[];$col=array_fill_keys($bc,0);$grand=0;foreach($ac as $aa){$line=[$aa];$rt=0;foreach($bc as $cc){$v=$mx[$aa][$cc];$line[]=$v;$rt+=$v;$col[$cc]+=$v;$grand+=$v;}$line[]=$rt;$rows[]=$line;}$last=['Total'];foreach($bc as $cc)$last[]=$col[$cc];$last[]=$grand;$rows[]=$last;send_table('matriz_cruce_'.date('Ymd_His'),array_merge([short_label($a)],$bc,['Total']),$rows,$format);
+}
+if(!in_array($type,['titulados','empleadores'],true))die('Tipo inválido');$b=dataset_bundle($type);if(!$b)die('No hay datos');$headers=$b['headers'];$rows=[];foreach($b['rows'] as $r){$line=[];foreach($headers as $h)$line[]=$r[$h]??'';$rows[]=$line;}send_table('datos_limpios_'.$type.'_'.date('Ymd_His'),$headers,$rows,$format);
