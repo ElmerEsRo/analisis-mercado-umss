@@ -1,6 +1,6 @@
 <?php
 function db_driver(): string {
-    $url = getenv('DATABASE_URL') ?: getenv('POSTGRES_URL') ?: getenv('NEON_DATABASE_URL');
+    $url = getenv('DATABASE_URL_UNPOOLED') ?: getenv('DATABASE_URL') ?: getenv('POSTGRES_URL') ?: getenv('NEON_DATABASE_URL');
     return $url ? 'pgsql' : 'mysql';
 }
 
@@ -9,7 +9,7 @@ function db(): PDO {
     if ($pdo instanceof PDO) return $pdo;
 
     try {
-        $url = getenv('DATABASE_URL') ?: getenv('POSTGRES_URL') ?: getenv('NEON_DATABASE_URL');
+        $url = getenv('DATABASE_URL_UNPOOLED') ?: getenv('DATABASE_URL') ?: getenv('POSTGRES_URL') ?: getenv('NEON_DATABASE_URL');
 
         if ($url) {
             $parts = parse_url($url);
