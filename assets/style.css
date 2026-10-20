@@ -42,3 +42,15 @@
 
 /* Identificación visual de historias de usuario */
 .home-hu-row{min-height:28px;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px}.hu-support{background:#64748b}.home-module-card .hu-tag{font-size:10px;padding:4px 8px}
+
+
+/* Administración de datos */
+.data-actions{display:grid;gap:10px}
+.action-buttons{display:flex;gap:9px;flex-wrap:wrap}
+.action-help{display:grid;gap:5px;padding-top:4px;font-size:11px;color:var(--muted);line-height:1.4}
+.clear-form{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border:1px solid #fecaca;background:#fff7f7;border-radius:9px}
+.clear-form span{font-size:11px;color:#8b4a4a}
+.btn.danger{background:#fff;color:#b42318;border:1px solid #efb2ad}
+.btn.danger:hover{background:#fef2f2}
+.loaded.empty-data{background:#f8fafc;border-color:#d9e2ec;color:#475569}
+.loaded.empty-data small{color:#64748b}

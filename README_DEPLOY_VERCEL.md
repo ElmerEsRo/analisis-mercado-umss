@@ -25,3 +25,12 @@ En el primer acceso se crean las tablas automáticamente y se cargan las bases i
 
 ## Módulos
 Inicio, Datos, Titulados, Empleadores, Cruces, Competencias, Simulación y Reportes.
+
+
+## Administración de datos
+El módulo Datos permite:
+- Agregar registros: conserva la base actual y suma las nuevas respuestas.
+- Cargar nueva base: reemplaza la base activa por el archivo seleccionado.
+- Vaciar base: elimina todos los registros del tipo seleccionado, con confirmación previa.
+
+La corrección de conexión Neon mediante DATABASE_URL_UNPOOLED y endpoint explícito está incluida.

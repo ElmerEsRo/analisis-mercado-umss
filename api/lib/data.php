@@ -56,6 +56,117 @@ function import_dataset(string $type,string $tmpFile,string $originalName): int 
     }catch(Throwable $e){$pdo->rollBack();throw $e;}
 }
 
+
+function parse_dataset_rows(string $tmpFile,string $originalName): array {
+    $ext=strtolower(pathinfo($originalName,PATHINFO_EXTENSION));
+    $rows=read_tabular_file($tmpFile,$ext);
+    if(count($rows)<2)throw new RuntimeException('El archivo no contiene respuestas suficientes.');
+
+    $headers=array_map(fn($x)=>trim((string)$x),$rows[0]);
+    $keep=[];
+    foreach($headers as $i=>$h)if(useful_header($h))$keep[$i]=$h;
+    if(count($keep)<3)throw new RuntimeException('No se detectaron columnas válidas.');
+
+    $cleanRows=[];
+    for($i=1;$i<count($rows);$i++){
+        $assoc=[];$nonEmpty=false;
+        foreach($keep as $c=>$h){
+            $v=trim((string)($rows[$i][$c]??''));
+            if($v!=='')$nonEmpty=true;
+            $assoc[$h]=$v;
+        }
+        if($nonEmpty)$cleanRows[]=$assoc;
+    }
+    if(!$cleanRows)throw new RuntimeException('El archivo no contiene respuestas válidas.');
+
+    return [array_values($keep),$cleanRows];
+}
+
+function save_dataset_rows(string $type,string $filename,array $headers,array $rows): int {
+    $pdo=db();
+    $pdo->beginTransaction();
+    try{
+        if(db_driver()==='pgsql'){
+            $st=$pdo->prepare('INSERT INTO datasets(type,filename,rows_count,columns_count,headers_json) VALUES(?,?,?,?,?) RETURNING id');
+            $st->execute([$type,$filename,count($rows),count($headers),json_encode($headers,JSON_UNESCAPED_UNICODE)]);
+            $id=(int)$st->fetchColumn();
+        }else{
+            $st=$pdo->prepare('INSERT INTO datasets(type,filename,rows_count,columns_count,headers_json) VALUES(?,?,?,?,?)');
+            $st->execute([$type,$filename,count($rows),count($headers),json_encode($headers,JSON_UNESCAPED_UNICODE)]);
+            $id=(int)$pdo->lastInsertId();
+        }
+
+        $ins=$pdo->prepare('INSERT INTO responses(dataset_id,row_number,data_json) VALUES(?,?,?)');
+        foreach($rows as $i=>$row){
+            $normalized=[];
+            foreach($headers as $h)$normalized[$h]=(string)($row[$h]??'');
+            $ins->execute([$id,$i+1,json_encode($normalized,JSON_UNESCAPED_UNICODE)]);
+        }
+        $pdo->commit();
+        return $id;
+    }catch(Throwable $e){
+        if($pdo->inTransaction())$pdo->rollBack();
+        throw $e;
+    }
+}
+
+function replace_dataset(string $type,string $tmpFile,string $originalName): int {
+    [$headers,$rows]=parse_dataset_rows($tmpFile,$originalName);
+    $id=save_dataset_rows($type,$originalName,$headers,$rows);
+
+    // La nueva base pasa a ser la única base activa de este tipo.
+    $st=db()->prepare('DELETE FROM datasets WHERE type=? AND id<>?');
+    $st->execute([$type,$id]);
+    return $id;
+}
+
+function append_dataset(string $type,string $tmpFile,string $originalName): array {
+    [$newHeaders,$newRows]=parse_dataset_rows($tmpFile,$originalName);
+
+    $current=latest_dataset($type);
+    $existingRows=[];
+    $existingHeaders=[];
+
+    if($current && (int)$current['rows_count']>0){
+        $existingRows=dataset_rows((int)$current['id']);
+        $existingHeaders=json_decode($current['headers_json']??'[]',true)?:[];
+    }
+
+    // Conserva el orden de las columnas actuales y añade columnas nuevas al final.
+    $headers=$existingHeaders;
+    foreach($newHeaders as $h)if(!in_array($h,$headers,true))$headers[]=$h;
+
+    $allRows=array_merge($existingRows,$newRows);
+    $id=save_dataset_rows($type,'Base acumulada - '.$originalName,$headers,$allRows);
+
+    // Se elimina la versión anterior para evitar duplicar almacenamiento.
+    $st=db()->prepare('DELETE FROM datasets WHERE type=? AND id<>?');
+    $st->execute([$type,$id]);
+
+    return ['id'=>$id,'added'=>count($newRows),'total'=>count($allRows)];
+}
+
+function clear_dataset(string $type): void {
+    $pdo=db();
+    $pdo->beginTransaction();
+    try{
+        // responses se eliminan por ON DELETE CASCADE.
+        $pdo->prepare('DELETE FROM datasets WHERE type=?')->execute([$type]);
+
+        // Se deja un registro vacío para evitar que AUTO_SEED vuelva a precargar la base.
+        if(db_driver()==='pgsql'){
+            $st=$pdo->prepare('INSERT INTO datasets(type,filename,rows_count,columns_count,headers_json) VALUES(?,?,?,?,?)');
+        }else{
+            $st=$pdo->prepare('INSERT INTO datasets(type,filename,rows_count,columns_count,headers_json) VALUES(?,?,?,?,?)');
+        }
+        $st->execute([$type,'Base vacía',0,0,'[]']);
+        $pdo->commit();
+    }catch(Throwable $e){
+        if($pdo->inTransaction())$pdo->rollBack();
+        throw $e;
+    }
+}
+
 function latest_dataset(string $type): ?array {
     $st=db()->prepare('SELECT * FROM datasets WHERE type=? ORDER BY id DESC LIMIT 1');
     $st->execute([$type]);
