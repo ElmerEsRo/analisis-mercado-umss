@@ -20,12 +20,16 @@ function db(): PDO {
             $host = $parts['host'];
             $port = $parts['port'] ?? 5432;
             $dbname = ltrim($parts['path'], '/');
+
+            $endpointId = explode('.', $host)[0];
+            $endpointId = preg_replace('/-pooler$/', '', $endpointId);
+
             $user = isset($parts['user']) ? urldecode($parts['user']) : '';
             $password = isset($parts['pass']) ? urldecode($parts['pass']) : '';
             parse_str($parts['query'] ?? '', $query);
 
             $sslmode = $query['sslmode'] ?? 'require';
-            $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode={$sslmode}";
+            $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode={$sslmode};options='endpoint={$endpointId}'";
 
             $pdo = new PDO($dsn, $user, $password, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
