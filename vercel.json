@@ -34,6 +34,10 @@
       "destination": "/api/brechas.php"
     },
     {
+      "source": "/calidad.php",
+      "destination": "/api/calidad.php"
+    },
+    {
       "source": "/simulacion.php",
       "destination": "/api/simulacion.php"
     },

@@ -34,3 +34,6 @@ El módulo Datos permite:
 - Vaciar base: elimina todos los registros del tipo seleccionado, con confirmación previa.
 
 La corrección de conexión Neon mediante DATABASE_URL_UNPOOLED y endpoint explícito está incluida.
+
+## Módulo Calidad y Validación
+Se añadió la opción **Calidad y Validación** al menú lateral. El módulo analiza tiempos de espera ingresados por el usuario y calcula tabla de frecuencias, tendencia central, dispersión, cuartiles, P90, histograma, polígono de frecuencias, boxplot, ojiva y reglas básicas de validación. No requiere nuevas tablas de base de datos.

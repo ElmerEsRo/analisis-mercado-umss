@@ -2,7 +2,7 @@
 function h($s): string{return htmlspecialchars((string)$s,ENT_QUOTES,'UTF-8');}
 function pct(int|float $n,int|float $d): string{return $d>0?number_format($n*100/$d,1).'%':'0.0%';}
 function page_start(string $title,string $active='',string $subtitle=''): void{
-    $items=['index.php'=>['Inicio','⌂'],'importar.php'=>['Datos','⇧'],'titulados.php'=>['Titulados','◉'],'empleadores.php'=>['Empleadores','▦'],'cruces.php'=>['Cruces','↔'],'brechas.php'=>['Competencias','△'],'simulacion.php'=>['Simulación','▶'],'reportes.php'=>['Reportes','↓']];
+    $items=['index.php'=>['Inicio','⌂'],'importar.php'=>['Datos','⇧'],'titulados.php'=>['Titulados','◉'],'empleadores.php'=>['Empleadores','▦'],'cruces.php'=>['Cruces','↔'],'brechas.php'=>['Competencias','△'],'calidad.php'=>['Calidad y Validación','✓'],'simulacion.php'=>['Simulación','▶'],'reportes.php'=>['Reportes','↓']];
     echo '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'.h($title).' · UMSS</title><link rel="stylesheet" href="assets/style.css"></head><body>';
     echo '<aside class="sidebar"><div class="brand"><div class="brand-mark logo-mark"><img src="assets/umss_logo_oficial.png" alt="Logo UMSS"></div><div><strong>Ingeniería en Sistemas</strong><small>Análisis de mercado</small></div></div><nav>';
     foreach($items as $href=>$it){$cls=$active===$href?'active':'';echo '<a class="'.$cls.'" href="'.$href.'"><span class="nav-icon">'.$it[1].'</span>'.h($it[0]).'</a>';}
