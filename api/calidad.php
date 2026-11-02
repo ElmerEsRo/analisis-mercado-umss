@@ -131,182 +131,106 @@ $useExample = isset($_POST['usar_ejemplo']);
 $qualityTarget = 9.0;
 if ($useExample) $raw = $example;
 [$values,$invalid] = $raw !== '' ? parse_waiting_values($raw) : [[],[]];
-
 ?>
-<div class="card quality-guide">
-    <div class="cross-title">
-        <div>
-            <h3 class="panel-title big">¿Cómo usar esta sección?</h3>
-            <p class="panel-sub">Solo necesitas ingresar los tiempos de espera. El sistema hace los cálculos y te explica el resultado.</p>
-        </div>
-        <span class="badge gray">3 pasos</span>
-    </div>
-    <div class="quality-steps">
-        <div><b>1</b><span><strong>Ingresa los tiempos</strong><small>Escribe los minutos separados por comas o uno por línea.</small></span></div>
-        <div><b>2</b><span><strong>Haz clic en Analizar</strong><small>El sistema calcula automáticamente tablas, estadísticas y gráficos.</small></span></div>
-        <div><b>3</b><span><strong>Revisa la validación</strong><small>Verás si los datos son válidos y si se cumple la meta de menos de 9 minutos.</small></span></div>
-    </div>
+<style>
+.qv-intro{background:linear-gradient(135deg,#eff6ff,#fff);border:1px solid #bfdbfe}.qv-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.qv-step{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid #dbeafe;border-radius:12px;background:#fff}.qv-num{min-width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2563eb;color:#fff;font-weight:700}.qv-step strong{display:block}.qv-step small{display:block;color:#64748b;margin-top:4px;line-height:1.35}.qv-main-result{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}.qv-kpi{padding:16px;border:1px solid #dbe4ee;border-radius:14px;background:#fff}.qv-kpi span{display:block;color:#64748b;font-size:13px}.qv-kpi b{display:block;font-size:25px;margin:5px 0;color:#0f172a}.qv-kpi small{color:#64748b}.qv-explain{margin-top:12px;padding:12px 14px;border-radius:10px;background:#f8fafc;color:#334155;line-height:1.5}.qv-status-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.qv-status{border:1px solid #dbe4ee;border-radius:14px;padding:15px;background:#fff}.qv-status .top{display:flex;align-items:center;justify-content:space-between;gap:12px}.qv-pill{padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}.qv-pill.good{background:#dcfce7;color:#166534}.qv-pill.warn{background:#fef3c7;color:#92400e}.qv-pill.bad{background:#fee2e2;color:#991b1b}.qv-status p{margin:8px 0 0;color:#475569;line-height:1.45}.qv-simple-list{display:grid;gap:9px}.qv-simple-row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #e5e7eb}.qv-simple-row:last-child{border-bottom:0}.qv-simple-row span{color:#475569}.qv-simple-row b{text-align:right}.qv-details{margin-top:14px;border:1px solid #dbe4ee;border-radius:14px;background:#fff;overflow:hidden}.qv-details summary{cursor:pointer;padding:14px 16px;font-weight:700;background:#f8fafc}.qv-details .inside{padding:16px}.qv-chart-note{padding:10px 12px;border-radius:9px;background:#f8fafc;color:#475569;margin-top:8px;font-size:13px;line-height:1.4}.qv-sorted{padding:12px;border-radius:10px;background:#f8fafc;line-height:1.65;color:#334155}.qv-section{margin-top:20px}.qv-section h2{font-size:20px;margin-bottom:10px}.qv-section h2 span{display:inline-flex;width:28px;height:28px;border-radius:50%;background:#dbeafe;color:#1d4ed8;align-items:center;justify-content:center;margin-right:8px;font-size:14px}.qv-help{color:#64748b;margin:-4px 0 12px}.qv-big-answer{font-size:30px;font-weight:800;margin:3px 0}.qv-green{color:#15803d}.qv-red{color:#b91c1c}.qv-orange{color:#b45309}@media(max-width:900px){.qv-steps,.qv-main-result{grid-template-columns:1fr 1fr}.qv-status-grid{grid-template-columns:1fr}}@media(max-width:600px){.qv-steps,.qv-main-result{grid-template-columns:1fr}}
+</style>
+
+<div class="card qv-intro">
+  <h3 class="panel-title big">Calidad y Validación — explicado paso a paso</h3>
+  <p class="panel-sub">Esta sección responde una pregunta sencilla: <b>¿los tiempos de espera son aceptables y los datos sirven para evaluar el servicio?</b></p>
+  <div class="qv-steps">
+    <div class="qv-step"><div class="qv-num">1</div><div><strong>Ingresa los tiempos</strong><small>Un tiempo por cliente. La actividad espera 30 clientes.</small></div></div>
+    <div class="qv-step"><div class="qv-num">2</div><div><strong>El sistema resume</strong><small>Te muestra promedio, valor central, tiempo más común y variación.</small></div></div>
+    <div class="qv-step"><div class="qv-num">3</div><div><strong>Lee la conclusión</strong><small>Te dice si los datos son válidos y si se alcanza la meta de menos de 9 minutos.</small></div></div>
+  </div>
 </div>
 
-<div class="card quality-input-card">
-    <div class="cross-title">
-        <div>
-            <h3 class="panel-title big">1. Ingreso de datos</h3>
-            <p class="panel-sub">Ingresa los tiempos de espera de cada cliente en minutos. Para completar la actividad se esperan 30 registros.</p>
-        </div>
-        <span class="badge gray">Variable cuantitativa</span>
-    </div>
-    <form method="post" class="quality-form">
-        <div class="field span-2">
-            <label>Tiempos de espera (minutos)</label>
-            <textarea name="tiempos" rows="5" placeholder="Ejemplo: 4, 5, 7, 8, 10..."><?=h($raw)?></textarea>
-        </div>
-        <div class="field">
-            <label>Promedio de la medición anterior (min)</label>
-            <input type="number" name="promedio_anterior" step="0.1" min="0" value="<?=h((string)$previousAvg)?>">
-        </div>
-        <div class="quality-form-actions">
-            <button class="btn" type="submit">Analizar datos</button>
-            <button class="btn secondary" type="submit" name="usar_ejemplo" value="1">Usar ejemplo de la guía</button>
-        </div>
-    </form>
-    <p class="caption">Puedes usar los 15 valores de ejemplo para probar el módulo. Para la entrega final se deben cargar los 30 tiempos reales de la muestra. El tipo de muestreo indicado en la actividad es aleatorio simple.</p>
+<div class="card" style="margin-top:14px">
+  <h3 class="panel-title big">1. Ingresa la muestra</h3>
+  <p class="panel-sub">Escribe los tiempos de espera en minutos, separados por comas o uno por línea.</p>
+  <form method="post" class="quality-form">
+    <div class="field span-2"><label>Tiempos de espera</label><textarea name="tiempos" rows="5" placeholder="Ejemplo: 4, 5, 7, 8, 10..."><?=h($raw)?></textarea></div>
+    <div class="field"><label>Promedio anterior para comparar</label><input type="number" name="promedio_anterior" step="0.1" min="0" value="<?=h((string)$previousAvg)?>"><small style="color:#64748b">La guía usa 11,5 min como referencia.</small></div>
+    <div class="quality-form-actions"><button class="btn" type="submit">Analizar</button><button class="btn secondary" type="submit" name="usar_ejemplo" value="1">Probar con los 15 datos de ejemplo</button></div>
+  </form>
 </div>
 
 <?php if(!$values): ?>
-    <div class="empty" style="margin-top:16px"><strong>Ingresa una muestra para comenzar</strong><p>El módulo calculará medidas estadísticas, tablas de frecuencia, gráficos y validaciones automáticamente.</p></div>
+<div class="empty" style="margin-top:16px"><strong>Aún no hay resultados</strong><p>Ingresa tiempos arriba y pulsa <b>Analizar</b>. No necesitas hacer ningún cálculo manual.</p></div>
 <?php else:
-    $n=count($values);$mean=stat_mean($values);$median=stat_median($values);$modes=stat_mode($values);$var=stat_variance_sample($values);$sd=stat_sd_sample($values);$range=max($values)-min($values);$cv=($mean&&$sd!==null)?($sd/$mean*100):null;[$q1,$q2,$q3]=stat_quartiles($values);$p90=stat_percentile_nearest($values,.90);$freq=exact_frequencies($values);$intervals=grouped_intervals($values);$neg=count(array_filter($values,fn($x)=>$x<0));$over60=count(array_filter($values,fn($x)=>$x>60));$validQuality=$neg===0&&$over60===0&&!$invalid;$le15=count(array_filter($values,fn($x)=>$x<=15));$over15=$n-$le15;$diffPrev=$mean-$previousAvg;$iqr=$q3-$q1;$lowFence=$q1-1.5*$iqr;$highFence=$q3+1.5*$iqr;$outliers=array_values(array_filter($values,fn($x)=>$x<$lowFence||$x>$highFence));$meetsTarget=$mean<$qualityTarget;
+$n=count($values);$mean=stat_mean($values);$median=stat_median($values);$modes=stat_mode($values);$var=stat_variance_sample($values);$sd=stat_sd_sample($values);$range=max($values)-min($values);$cv=($mean&&$sd!==null)?($sd/$mean*100):null;[$q1,$q2,$q3]=stat_quartiles($values);$p90=stat_percentile_nearest($values,.90);$freq=exact_frequencies($values);$intervals=grouped_intervals($values);$neg=count(array_filter($values,fn($x)=>$x<0));$over60=count(array_filter($values,fn($x)=>$x>60));$validQuality=$neg===0&&$over60===0&&!$invalid;$le15=count(array_filter($values,fn($x)=>$x<=15));$over15=$n-$le15;$diffPrev=$mean-$previousAvg;$iqr=$q3-$q1;$lowFence=$q1-1.5*$iqr;$highFence=$q3+1.5*$iqr;$outliers=array_values(array_filter($values,fn($x)=>$x<$lowFence||$x>$highFence));$meetsTarget=$mean<$qualityTarget;$sortedValues=$values;sort($sortedValues,SORT_NUMERIC);$missing=max(0,30-$n);$pct15=$n?($le15/$n*100):0;
+$trend = $diffPrev < -0.01 ? 'bajó' : ($diffPrev > 0.01 ? 'subió' : 'se mantuvo igual');
 ?>
 
-<div class="summary-strip quality-summary">
-    <div><span>Tamaño de muestra</span><b><?=$n?></b><small><?=$n===30?'Muestra objetivo completa':'Objetivo: 30 clientes'?></small></div>
-    <div><span>Media</span><b><?=format_num($mean,2)?> min</b><small>Tiempo promedio</small></div>
-    <div><span>Mediana</span><b><?=format_num($median,2)?> min</b><small>50% de los casos</small></div>
-    <div><span>Desviación estándar</span><b><?=format_num($sd,2)?> min</b><small>Dispersión de la muestra</small></div>
+<div class="qv-section">
+  <h2><span>2</span>Lo más importante de tu muestra</h2>
+  <p class="qv-help">Primero mira estas cuatro cifras. Son las que mejor resumen lo que está pasando.</p>
+  <div class="qv-main-result">
+    <div class="qv-kpi"><span>Clientes analizados</span><b><?=$n?> / 30</b><small><?=$missing===0?'Muestra completa':'Faltan '.$missing.' para completar la muestra'?></small></div>
+    <div class="qv-kpi"><span>Espera promedio</span><b><?=format_num($mean,2)?> min</b><small>En promedio, eso espera un cliente.</small></div>
+    <div class="qv-kpi"><span>La mitad esperó hasta</span><b><?=format_num($median,2)?> min</b><small>Esto es la mediana.</small></div>
+    <div class="qv-kpi"><span>Tiempo más repetido</span><b><?=$modes?h(implode(', ',array_map(fn($x)=>format_num($x,1),$modes))).' min':'No hay uno solo'?></b><small>Esto es la moda.</small></div>
+  </div>
+  <div class="qv-explain"><b>Lectura rápida:</b> <?=number_format($pct15,1)?>% de los clientes esperó 15 minutos o menos. El promedio actual es de <?=format_num($mean,2)?> minutos.</div>
 </div>
 
-<div class="card quality-goal-card" style="margin-top:14px">
-    <div class="cross-title">
-        <div>
-            <h3 class="panel-title big">Meta de mejora del servicio</h3>
-            <p class="panel-sub">La actividad establece como acción de seguimiento volver a medir la muestra y verificar si el promedio baja a menos de 9 minutos.</p>
-        </div>
-        <span class="badge <?=$meetsTarget?'green':'gray'?>"><?=$meetsTarget?'CUMPLE':'NO CUMPLE'?></span>
-    </div>
-    <div class="summary-strip quality-goal-summary">
-        <div><span>Meta</span><b>&lt; <?=format_num($qualityTarget,0)?> min</b><small>Promedio esperado</small></div>
-        <div><span>Promedio actual</span><b><?=format_num($mean,2)?> min</b><small>Resultado de la muestra</small></div>
-        <div><span>Diferencia respecto a la meta</span><b><?=format_num($mean-$qualityTarget,2)?> min</b><small><?=$meetsTarget?'Por debajo del límite':'Por encima del límite'?></small></div>
-        <div><span>Estado</span><b><?=$meetsTarget?'Cumple':'No cumple'?></b><small>Validación de la meta</small></div>
-    </div>
-    <div class="alert <?=$meetsTarget?'ok':'info'?>" style="margin-top:12px">
-        <?php if($meetsTarget): ?>
-            El promedio actual es menor a 9 minutos. La meta de mejora planteada en la actividad se considera alcanzada para esta muestra.
-        <?php else: ?>
-            El promedio actual todavía no baja de 9 minutos. Se recomienda reforzar la atención en horas pico y volver a tomar una muestra de 30 clientes después de aplicar la mejora.
-        <?php endif; ?>
-    </div>
+<div class="qv-section">
+  <h2><span>3</span>¿El servicio cumple?</h2>
+  <p class="qv-help">Aquí no necesitas interpretar fórmulas: el sistema te da una respuesta directa.</p>
+  <div class="qv-status-grid">
+    <div class="qv-status"><div class="top"><strong>Meta de mejora: promedio menor a 9 min</strong><span class="qv-pill <?=$meetsTarget?'good':'bad'?>"><?=$meetsTarget?'CUMPLE':'NO CUMPLE'?></span></div><div class="qv-big-answer <?=$meetsTarget?'qv-green':'qv-red'?>"><?=format_num($mean,2)?> min</div><p><?=$meetsTarget?'La muestra ya está por debajo de la meta establecida.':'El promedio todavía está por encima de la meta. Faltan '.format_num($mean-$qualityTarget,2).' min para llegar al límite de 9 min.'?></p></div>
+    <div class="qv-status"><div class="top"><strong>Comparación con la medición anterior</strong><span class="qv-pill <?=abs($diffPrev)<0.01?'good':($diffPrev<0?'good':'warn')?>"><?=strtoupper($trend)?></span></div><div class="qv-big-answer <?=($diffPrev<=0?'qv-green':'qv-orange')?>"><?=($diffPrev>0?'+':'').format_num($diffPrev,2)?> min</div><p>Antes: <?=format_num($previousAvg,2)?> min. Ahora: <?=format_num($mean,2)?> min. El tiempo promedio <?=$trend?> <?=format_num(abs($diffPrev),2)?> min.</p></div>
+    <div class="qv-status"><div class="top"><strong>¿Los datos son válidos?</strong><span class="qv-pill <?=$validQuality?'good':'bad'?>"><?=$validQuality?'SÍ':'REVISAR'?></span></div><p><?=$validQuality?'No se encontraron tiempos negativos, mayores a 60 min ni textos inválidos.':'Hay valores que deben corregirse antes de considerar válida la muestra.'?></p><div class="qv-simple-list"><div class="qv-simple-row"><span>Negativos</span><b><?=$neg?></b></div><div class="qv-simple-row"><span>Mayores a 60 min</span><b><?=$over60?></b></div><div class="qv-simple-row"><span>No numéricos</span><b><?=count($invalid)?></b></div></div></div>
+    <div class="qv-status"><div class="top"><strong>¿La muestra está completa?</strong><span class="qv-pill <?=$n===30?'good':'warn'?>"><?=$n===30?'SÍ':'TODAVÍA NO'?></span></div><div class="qv-big-answer <?=$n===30?'qv-green':'qv-orange'?>"><?=$n?> / 30</div><p><?=$n===30?'Se alcanzó el tamaño de muestra solicitado.':'La actividad pide 30 clientes. Puedes usar los 15 datos de ejemplo para probar, pero para la muestra completa faltan '.$missing.'.'?></p></div>
+  </div>
 </div>
 
-<?php if($n!==30): ?>
-<div class="alert info">La actividad establece una muestra de 30 clientes. Actualmente se analizaron <b><?=$n?></b> registros.</div>
-<?php endif; ?>
-<?php if($invalid): ?><div class="alert err">Se omitieron valores no numéricos: <?=h(implode(', ',$invalid))?></div><?php endif; ?>
-
-<?php $sortedValues=$values; sort($sortedValues,SORT_NUMERIC); $missing=max(0,30-$n); ?>
-<div class="card quality-data-overview" style="margin-top:14px">
-    <div class="cross-title">
-        <div>
-            <h3 class="panel-title big">Resumen de la muestra</h3>
-            <p class="panel-sub">Antes de calcular, verifica cuántos datos ingresaste y cómo quedan ordenados.</p>
-        </div>
-        <span class="badge <?=$n===30?'green':'gray'?>"><?=$n?> / 30</span>
-    </div>
-    <div class="summary-strip quality-mini-summary">
-        <div><span>Registros ingresados</span><b><?=$n?></b><small>Valores analizados</small></div>
-        <div><span>Registros faltantes</span><b><?=$missing?></b><small>Para llegar a 30</small></div>
-        <div><span>Menor tiempo</span><b><?=format_num(min($values),1)?> min</b><small>Valor mínimo</small></div>
-        <div><span>Mayor tiempo</span><b><?=format_num(max($values),1)?> min</b><small>Valor máximo</small></div>
-    </div>
-    <div class="quality-sorted"><strong>Datos ordenados:</strong><span><?=h(implode(', ',array_map(fn($x)=>format_num($x,1),$sortedValues)))?></span></div>
+<div class="qv-section">
+  <h2><span>4</span>¿Qué tan diferentes son los tiempos?</h2>
+  <p class="qv-help">Esta parte explica la variación sin obligarte a interpretar términos estadísticos.</p>
+  <div class="grid cols-2 quality-two">
+    <div class="card"><h3 class="panel-title">Variación entre clientes</h3><div class="qv-simple-list"><div class="qv-simple-row"><span>Tiempo más corto</span><b><?=format_num(min($values),1)?> min</b></div><div class="qv-simple-row"><span>Tiempo más largo</span><b><?=format_num(max($values),1)?> min</b></div><div class="qv-simple-row"><span>Diferencia entre ambos</span><b><?=format_num($range,1)?> min</b></div><div class="qv-simple-row"><span>Desviación estándar</span><b><?=format_num($sd,2)?> min</b></div><div class="qv-simple-row"><span>Coeficiente de variación</span><b><?=format_num($cv,1)?>%</b></div></div><div class="qv-explain"><?=$cv!==null&&$cv>30?'Los tiempos cambian bastante de un cliente a otro; el servicio no es muy uniforme.':'Los tiempos muestran una variación moderada o baja entre clientes.'?></div></div>
+    <div class="card"><h3 class="panel-title">¿Dónde se concentra la mayoría?</h3><div class="qv-simple-list"><div class="qv-simple-row"><span>25% esperó hasta (Q1)</span><b><?=format_num($q1,2)?> min</b></div><div class="qv-simple-row"><span>50% esperó hasta (Q2)</span><b><?=format_num($q2,2)?> min</b></div><div class="qv-simple-row"><span>75% esperó hasta (Q3)</span><b><?=format_num($q3,2)?> min</b></div><div class="qv-simple-row"><span>90% esperó hasta (P90)</span><b><?=format_num($p90,2)?> min</b></div></div><div class="qv-explain">Ejemplo: P90 = <?=format_num($p90,1)?> min significa que aproximadamente 9 de cada 10 clientes esperaron <?=format_num($p90,1)?> minutos o menos.</div></div>
+  </div>
 </div>
 
-<h2 class="section-title numbered"><span>2</span>Frecuencias: ¿cuántas veces aparece cada tiempo?</h2>
-<div class="grid cols-2 quality-two">
-    <div class="card">
-        <h3 class="panel-title">Frecuencia por valor</h3>
-        <div class="table-wrap"><table><thead><tr><th>Tiempo (xi)</th><th>Veces (fi)</th><th>Porcentaje (hi)</th><th>Acumulado (Fi)</th></tr></thead><tbody>
-        <?php $cum=0;foreach($freq as $x=>$c):$cum+=$c;?><tr><td><?=h($x)?></td><td><?=$c?></td><td><?=number_format($c/$n*100,1)?>%</td><td><?=$cum?></td></tr><?php endforeach;?>
-        </tbody><tfoot><tr><th>Total</th><th><?=$n?></th><th>100%</th><th><?=$n?></th></tr></tfoot></table></div>
-    </div>
-    <div class="card">
-        <h3 class="panel-title">Tiempos agrupados por intervalos</h3>
-        <div class="table-wrap"><table><thead><tr><th>Intervalo</th><th>Punto medio</th><th>Veces</th><th>Porcentaje</th></tr></thead><tbody>
-        <?php foreach($intervals as $it):?><tr><td>[<?=format_num($it['from'],1)?> – <?=format_num($it['to'],1)?>]</td><td><?=format_num($it['mark'],1)?></td><td><?=$it['count']?></td><td><?=number_format($it['rel']*100,1)?>%</td></tr><?php endforeach;?>
-        </tbody></table></div>
-    </div>
+<div class="qv-section">
+  <h2><span>5</span>Gráficos — qué significa cada uno</h2>
+  <p class="qv-help">Los cuatro gráficos se mantienen porque los pide la actividad, pero cada uno incluye una explicación sencilla.</p>
+  <div class="grid cols-2 quality-charts">
+    <div class="card"><h3 class="panel-title">Histograma</h3><p class="panel-sub">Muestra en qué rangos se concentran más clientes.</p><?=svg_histogram($intervals)?><div class="qv-chart-note"><b>Cómo leerlo:</b> una barra más alta significa que más clientes tuvieron tiempos dentro de ese rango.</div></div>
+    <div class="card"><h3 class="panel-title">Polígono de frecuencias</h3><p class="panel-sub">Muestra cómo sube o baja la cantidad de clientes según el tiempo.</p><?=svg_polygon($intervals)?><div class="qv-chart-note"><b>Cómo leerlo:</b> los puntos altos indican los rangos de espera más frecuentes.</div></div>
+    <div class="card"><h3 class="panel-title">Diagrama de caja</h3><p class="panel-sub">Resume el centro de los datos y ayuda a detectar tiempos inusuales.</p><?=svg_boxplot($values,$q1,$q2,$q3)?><div class="qv-chart-note"><b>Cómo leerlo:</b> los puntos separados de la caja pueden ser valores atípicos. Detectados: <?=count($outliers)?>.</div></div>
+    <div class="card"><h3 class="panel-title">Ojiva</h3><p class="panel-sub">Muestra cuántos clientes se van acumulando hasta cada tiempo.</p><?=svg_ogive($intervals,$n)?><div class="qv-chart-note"><b>Cómo leerlo:</b> sirve para responder “¿cuántos clientes esperaron hasta cierto número de minutos?”.</div></div>
+  </div>
 </div>
 
-<h2 class="section-title numbered"><span>3</span>Resultados estadísticos</h2>
-<div class="grid cols-3 quality-stats">
-    <div class="card"><h3 class="panel-title">Tendencia central</h3><p class="panel-sub">Indica cuál es el tiempo típico de espera.</p><div class="quality-list"><div><span>Media</span><b><?=format_num($mean,2)?> min</b></div><div><span>Mediana</span><b><?=format_num($median,2)?> min</b></div><div><span>Moda</span><b><?=$modes?h(implode(', ',array_map(fn($x)=>format_num($x,1),$modes))).' min':'Sin moda'?></b></div></div></div>
-    <div class="card"><h3 class="panel-title">Dispersión</h3><p class="panel-sub">Muestra qué tanto varían los tiempos entre clientes.</p><div class="quality-list"><div><span>Rango</span><b><?=format_num($range,2)?> min</b></div><div><span>Varianza muestral</span><b><?=format_num($var,2)?></b></div><div><span>Coeficiente de variación</span><b><?=format_num($cv,1)?>%</b></div></div></div>
-    <div class="card"><h3 class="panel-title">Posición</h3><p class="panel-sub">Ubica los tiempos dentro de la muestra.</p><div class="quality-list"><div><span>Q1</span><b><?=format_num($q1,2)?> min</b></div><div><span>Q2</span><b><?=format_num($q2,2)?> min</b></div><div><span>Q3 / P90</span><b><?=format_num($q3,2)?> / <?=format_num($p90,2)?> min</b></div></div></div>
-</div>
-
-<h2 class="section-title numbered"><span>4</span>Gráficos para entender la distribución</h2>
-<div class="grid cols-2 quality-charts">
-    <div class="card"><h3 class="panel-title">Histograma</h3><p class="panel-sub">Frecuencia de tiempos agrupados por intervalos.</p><?=svg_histogram($intervals)?></div>
-    <div class="card"><h3 class="panel-title">Polígono de frecuencias</h3><p class="panel-sub">Tendencia de la distribución de frecuencias.</p><?=svg_polygon($intervals)?></div>
-    <div class="card"><h3 class="panel-title">Diagrama de caja</h3><p class="panel-sub">Cuartiles, mediana y posibles valores atípicos.</p><?=svg_boxplot($values,$q1,$q2,$q3)?></div>
-    <div class="card"><h3 class="panel-title">Ojiva</h3><p class="panel-sub">Frecuencia acumulada por intervalo.</p><?=svg_ogive($intervals,$n)?></div>
-</div>
-
-<h2 class="section-title numbered"><span>5</span>Validación final de la muestra</h2>
-<div class="grid cols-2 quality-validation">
-    <div class="card">
-        <h3 class="panel-title">¿Los datos están completos y son válidos?</h3>
-        <div class="quality-checks">
-            <div class="<?=$neg===0?'ok':'bad'?>"><b><?=$neg===0?'✓':'!'?></b><span>Tiempos negativos encontrados</span><strong><?=$neg?></strong></div>
-            <div class="<?=$over60===0?'ok':'bad'?>"><b><?=$over60===0?'✓':'!'?></b><span>Tiempos mayores a 60 minutos</span><strong><?=$over60?></strong></div>
-            <div class="<?=!$invalid?'ok':'bad'?>"><b><?=!$invalid?'✓':'!'?></b><span>Datos que no son números</span><strong><?=count($invalid)?></strong></div>
-            <div class="<?=$n===30?'ok':'warn'?>"><b><?=$n===30?'✓':'!'?></b><span>Registros cargados de los 30 esperados</span><strong><?=$n?> / 30</strong></div>
-        </div>
-    </div>
-    <div class="card">
-        <h3 class="panel-title">¿Qué significa el resultado?</h3>
-        <div class="quality-list">
-            <div><span>Esperó 15 min o menos</span><b><?=number_format($le15/$n*100,1)?>%</b></div>
-            <div><span>Esperó más de 15 min</span><b><?=number_format($over15/$n*100,1)?>%</b></div>
-            <div><span>Valores atípicos por IQR</span><b><?=count($outliers)?></b></div>
-            <div><span>Diferencia frente a la medición anterior</span><b><?=($diffPrev>0?'+':'').format_num($diffPrev,2)?> min</b></div>
-            <div><span>Meta de mejora (&lt; 9 min)</span><b><?=$meetsTarget?'Cumple':'No cumple'?></b></div>
-        </div>
-    </div>
-</div>
-
-
-<div class="card quality-decision" style="margin-top:14px">
-    <h3 class="panel-title big">Resultado rápido</h3>
-    <div class="quality-decision-grid">
-        <div><span>Datos válidos</span><b class="<?=$validQuality?'good':'badtext'?>"><?=$validQuality?'Sí':'Revisar'?></b><small>Sin negativos, sin >60 min y sin textos inválidos</small></div>
-        <div><span>Muestra completa</span><b class="<?=$n===30?'good':'warntext'?>"><?=$n===30?'Sí':'No'?></b><small><?=$n?> de 30 registros cargados</small></div>
-        <div><span>Meta de servicio</span><b class="<?=$meetsTarget?'good':'badtext'?>"><?=$meetsTarget?'Cumple':'No cumple'?></b><small>Promedio menor a 9 minutos</small></div>
-    </div>
-</div>
-
-<div class="card quality-conclusion" style="margin-top:14px">
-    <h3 class="panel-title big">Conclusión automática</h3>
-    <p><?php
-        $shape = $mean > $median + 0.01 ? 'La distribución presenta tendencia hacia la derecha, ya que la media es mayor que la mediana.' : ($mean < $median - 0.01 ? 'La distribución presenta tendencia hacia la izquierda, ya que la media es menor que la mediana.' : 'La media y la mediana son similares, por lo que la distribución no muestra una asimetría marcada.');
-        echo h($shape.' '.number_format($le15/$n*100,1).'% de los clientes esperó 15 minutos o menos. ');
-        if($cv!==null) echo h('El coeficiente de variación es '.format_num($cv,1).'%, lo que '.($cv>30?'indica una variabilidad elevada en los tiempos de espera.':'muestra una variabilidad moderada o baja en los tiempos de espera.').' ');
-        if($outliers) echo h('Se identificaron '.count($outliers).' posible(s) valor(es) atípico(s): '.implode(', ',array_map(fn($x)=>format_num($x,1),$outliers)).' min. ');
-        echo h($meetsTarget ? 'La muestra cumple la meta de mejora de mantener el promedio por debajo de 9 minutos. ' : 'La muestra todavía no cumple la meta de mejora de reducir el promedio a menos de 9 minutos. ');
-        echo $validQuality ? 'Los registros analizados cumplen las reglas básicas de validación de rango.' : 'Se detectaron registros que requieren revisión antes de validar la muestra.';
+<div class="qv-section">
+  <h2><span>6</span>Conclusión que puedes explicar</h2>
+  <div class="card">
+    <p style="font-size:16px;line-height:1.7;margin:0"><?php
+      echo 'Se analizaron <b>'.$n.'</b> tiempos de espera. El promedio fue de <b>'.format_num($mean,2).' min</b> y la mitad de los clientes esperó <b>'.format_num($median,2).' min o menos</b>. ';
+      echo '<b>'.number_format($pct15,1).'%</b> esperó 15 minutos o menos. ';
+      if($cv!==null) echo $cv>30 ? 'Los tiempos presentan <b>alta variación</b>, por lo que la atención no es uniforme entre clientes. ' : 'La variación de los tiempos es moderada o baja. ';
+      if($outliers) echo 'Se detectaron <b>'.count($outliers).' posible(s) valor(es) atípico(s)</b>. ';
+      echo $meetsTarget ? 'La muestra <b>cumple</b> la meta de mantener el promedio por debajo de 9 minutos.' : 'La muestra <b>todavía no cumple</b> la meta de reducir el promedio a menos de 9 minutos.';
     ?></p>
+    <div class="qv-explain"><b>Recomendación:</b> <?=$meetsTarget?'Mantener las acciones aplicadas y volver a medir periódicamente para comprobar que el resultado se sostiene.':'Reforzar la atención en horas de mayor demanda y volver a tomar una muestra de 30 clientes después de aplicar la mejora.'?></div>
+  </div>
 </div>
+
+<details class="qv-details">
+  <summary>Ver datos ordenados y tablas estadísticas requeridas en la actividad</summary>
+  <div class="inside">
+    <div class="qv-sorted"><b>Datos ordenados:</b> <?=h(implode(', ',array_map(fn($x)=>format_num($x,1),$sortedValues)))?></div>
+    <div class="grid cols-2 quality-two" style="margin-top:14px">
+      <div><h3 class="panel-title">Tabla de frecuencias</h3><div class="table-wrap"><table><thead><tr><th>Tiempo</th><th>Veces</th><th>%</th><th>Acumulado</th></tr></thead><tbody><?php $cum=0;foreach($freq as $x=>$c):$cum+=$c;?><tr><td><?=h($x)?></td><td><?=$c?></td><td><?=number_format($c/$n*100,1)?>%</td><td><?=$cum?></td></tr><?php endforeach;?></tbody></table></div></div>
+      <div><h3 class="panel-title">Tabla por intervalos</h3><div class="table-wrap"><table><thead><tr><th>Intervalo</th><th>Marca</th><th>Veces</th><th>%</th></tr></thead><tbody><?php foreach($intervals as $it):?><tr><td>[<?=format_num($it['from'],1)?> – <?=format_num($it['to'],1)?>]</td><td><?=format_num($it['mark'],1)?></td><td><?=$it['count']?></td><td><?=number_format($it['rel']*100,1)?>%</td></tr><?php endforeach;?></tbody></table></div></div>
+    </div>
+    <div class="card" style="margin-top:14px"><h3 class="panel-title">Valores técnicos completos</h3><div class="qv-simple-list"><div class="qv-simple-row"><span>Media</span><b><?=format_num($mean,2)?></b></div><div class="qv-simple-row"><span>Mediana</span><b><?=format_num($median,2)?></b></div><div class="qv-simple-row"><span>Moda</span><b><?=$modes?h(implode(', ',array_map(fn($x)=>format_num($x,1),$modes))):'Sin moda'?></b></div><div class="qv-simple-row"><span>Rango</span><b><?=format_num($range,2)?></b></div><div class="qv-simple-row"><span>Varianza muestral</span><b><?=format_num($var,2)?></b></div><div class="qv-simple-row"><span>Desviación estándar</span><b><?=format_num($sd,2)?></b></div><div class="qv-simple-row"><span>Coeficiente de variación</span><b><?=format_num($cv,1)?>%</b></div><div class="qv-simple-row"><span>Q1 / Q2 / Q3</span><b><?=format_num($q1,2)?> / <?=format_num($q2,2)?> / <?=format_num($q3,2)?></b></div><div class="qv-simple-row"><span>P90</span><b><?=format_num($p90,2)?></b></div></div></div>
+  </div>
+</details>
 
 <?php endif; ?>
 <?php page_end(); ?>
