@@ -133,26 +133,11 @@ if ($useExample) $raw = $example;
 [$values,$invalid] = $raw !== '' ? parse_waiting_values($raw) : [[],[]];
 
 ?>
-<div class="card quality-guide">
-    <div class="cross-title">
-        <div>
-            <h3 class="panel-title big">¿Cómo usar esta sección?</h3>
-            <p class="panel-sub">Solo necesitas ingresar los tiempos de espera. El sistema hace los cálculos y te explica el resultado.</p>
-        </div>
-        <span class="badge gray">3 pasos</span>
-    </div>
-    <div class="quality-steps">
-        <div><b>1</b><span><strong>Ingresa los tiempos</strong><small>Escribe los minutos separados por comas o uno por línea.</small></span></div>
-        <div><b>2</b><span><strong>Haz clic en Analizar</strong><small>El sistema calcula automáticamente tablas, estadísticas y gráficos.</small></span></div>
-        <div><b>3</b><span><strong>Revisa la validación</strong><small>Verás si los datos son válidos y si se cumple la meta de menos de 9 minutos.</small></span></div>
-    </div>
-</div>
-
 <div class="card quality-input-card">
     <div class="cross-title">
         <div>
-            <h3 class="panel-title big">1. Ingreso de datos</h3>
-            <p class="panel-sub">Ingresa los tiempos de espera de cada cliente en minutos. Para completar la actividad se esperan 30 registros.</p>
+            <h3 class="panel-title big">Datos de tiempos de espera</h3>
+            <p class="panel-sub">Ingresa los tiempos en minutos separados por comas o por líneas. La actividad plantea una muestra objetivo de 30 clientes.</p>
         </div>
         <span class="badge gray">Variable cuantitativa</span>
     </div>
@@ -162,15 +147,15 @@ if ($useExample) $raw = $example;
             <textarea name="tiempos" rows="5" placeholder="Ejemplo: 4, 5, 7, 8, 10..."><?=h($raw)?></textarea>
         </div>
         <div class="field">
-            <label>Promedio de la medición anterior (min)</label>
+            <label>Promedio de referencia anterior (min)</label>
             <input type="number" name="promedio_anterior" step="0.1" min="0" value="<?=h((string)$previousAvg)?>">
         </div>
         <div class="quality-form-actions">
-            <button class="btn" type="submit">Analizar datos</button>
-            <button class="btn secondary" type="submit" name="usar_ejemplo" value="1">Usar ejemplo de la guía</button>
+            <button class="btn" type="submit">Analizar muestra</button>
+            <button class="btn secondary" type="submit" name="usar_ejemplo" value="1">Cargar ejemplo de 15 datos</button>
         </div>
     </form>
-    <p class="caption">Puedes usar los 15 valores de ejemplo para probar el módulo. Para la entrega final se deben cargar los 30 tiempos reales de la muestra. El tipo de muestreo indicado en la actividad es aleatorio simple.</p>
+    <p class="caption">El ejemplo corresponde a los 15 valores mostrados en la guía. Para la validación completa deben cargarse los 30 tiempos reales de la muestra. Según la actividad, la muestra se considera de tipo aleatorio simple.</p>
 </div>
 
 <?php if(!$values): ?>
@@ -214,48 +199,30 @@ if ($useExample) $raw = $example;
 <?php endif; ?>
 <?php if($invalid): ?><div class="alert err">Se omitieron valores no numéricos: <?=h(implode(', ',$invalid))?></div><?php endif; ?>
 
-<?php $sortedValues=$values; sort($sortedValues,SORT_NUMERIC); $missing=max(0,30-$n); ?>
-<div class="card quality-data-overview" style="margin-top:14px">
-    <div class="cross-title">
-        <div>
-            <h3 class="panel-title big">Resumen de la muestra</h3>
-            <p class="panel-sub">Antes de calcular, verifica cuántos datos ingresaste y cómo quedan ordenados.</p>
-        </div>
-        <span class="badge <?=$n===30?'green':'gray'?>"><?=$n?> / 30</span>
-    </div>
-    <div class="summary-strip quality-mini-summary">
-        <div><span>Registros ingresados</span><b><?=$n?></b><small>Valores analizados</small></div>
-        <div><span>Registros faltantes</span><b><?=$missing?></b><small>Para llegar a 30</small></div>
-        <div><span>Menor tiempo</span><b><?=format_num(min($values),1)?> min</b><small>Valor mínimo</small></div>
-        <div><span>Mayor tiempo</span><b><?=format_num(max($values),1)?> min</b><small>Valor máximo</small></div>
-    </div>
-    <div class="quality-sorted"><strong>Datos ordenados:</strong><span><?=h(implode(', ',array_map(fn($x)=>format_num($x,1),$sortedValues)))?></span></div>
-</div>
-
-<h2 class="section-title numbered"><span>2</span>Frecuencias: ¿cuántas veces aparece cada tiempo?</h2>
+<h2 class="section-title numbered"><span>1</span>Tabla de frecuencias</h2>
 <div class="grid cols-2 quality-two">
     <div class="card">
         <h3 class="panel-title">Frecuencia por valor</h3>
-        <div class="table-wrap"><table><thead><tr><th>Tiempo (xi)</th><th>Veces (fi)</th><th>Porcentaje (hi)</th><th>Acumulado (Fi)</th></tr></thead><tbody>
+        <div class="table-wrap"><table><thead><tr><th>Tiempo (xi)</th><th>fi</th><th>hi</th><th>Fi</th></tr></thead><tbody>
         <?php $cum=0;foreach($freq as $x=>$c):$cum+=$c;?><tr><td><?=h($x)?></td><td><?=$c?></td><td><?=number_format($c/$n*100,1)?>%</td><td><?=$cum?></td></tr><?php endforeach;?>
         </tbody><tfoot><tr><th>Total</th><th><?=$n?></th><th>100%</th><th><?=$n?></th></tr></tfoot></table></div>
     </div>
     <div class="card">
-        <h3 class="panel-title">Tiempos agrupados por intervalos</h3>
-        <div class="table-wrap"><table><thead><tr><th>Intervalo</th><th>Punto medio</th><th>Veces</th><th>Porcentaje</th></tr></thead><tbody>
+        <h3 class="panel-title">Distribución por intervalos</h3>
+        <div class="table-wrap"><table><thead><tr><th>Intervalo</th><th>Marca</th><th>fi</th><th>hi</th></tr></thead><tbody>
         <?php foreach($intervals as $it):?><tr><td>[<?=format_num($it['from'],1)?> – <?=format_num($it['to'],1)?>]</td><td><?=format_num($it['mark'],1)?></td><td><?=$it['count']?></td><td><?=number_format($it['rel']*100,1)?>%</td></tr><?php endforeach;?>
         </tbody></table></div>
     </div>
 </div>
 
-<h2 class="section-title numbered"><span>3</span>Resultados estadísticos</h2>
+<h2 class="section-title numbered"><span>2</span>Medidas estadísticas</h2>
 <div class="grid cols-3 quality-stats">
-    <div class="card"><h3 class="panel-title">Tendencia central</h3><p class="panel-sub">Indica cuál es el tiempo típico de espera.</p><div class="quality-list"><div><span>Media</span><b><?=format_num($mean,2)?> min</b></div><div><span>Mediana</span><b><?=format_num($median,2)?> min</b></div><div><span>Moda</span><b><?=$modes?h(implode(', ',array_map(fn($x)=>format_num($x,1),$modes))).' min':'Sin moda'?></b></div></div></div>
-    <div class="card"><h3 class="panel-title">Dispersión</h3><p class="panel-sub">Muestra qué tanto varían los tiempos entre clientes.</p><div class="quality-list"><div><span>Rango</span><b><?=format_num($range,2)?> min</b></div><div><span>Varianza muestral</span><b><?=format_num($var,2)?></b></div><div><span>Coeficiente de variación</span><b><?=format_num($cv,1)?>%</b></div></div></div>
-    <div class="card"><h3 class="panel-title">Posición</h3><p class="panel-sub">Ubica los tiempos dentro de la muestra.</p><div class="quality-list"><div><span>Q1</span><b><?=format_num($q1,2)?> min</b></div><div><span>Q2</span><b><?=format_num($q2,2)?> min</b></div><div><span>Q3 / P90</span><b><?=format_num($q3,2)?> / <?=format_num($p90,2)?> min</b></div></div></div>
+    <div class="card"><h3 class="panel-title">Tendencia central</h3><div class="quality-list"><div><span>Media</span><b><?=format_num($mean,2)?> min</b></div><div><span>Mediana</span><b><?=format_num($median,2)?> min</b></div><div><span>Moda</span><b><?=$modes?h(implode(', ',array_map(fn($x)=>format_num($x,1),$modes))).' min':'Sin moda'?></b></div></div></div>
+    <div class="card"><h3 class="panel-title">Dispersión</h3><div class="quality-list"><div><span>Rango</span><b><?=format_num($range,2)?> min</b></div><div><span>Varianza muestral</span><b><?=format_num($var,2)?></b></div><div><span>Coeficiente de variación</span><b><?=format_num($cv,1)?>%</b></div></div></div>
+    <div class="card"><h3 class="panel-title">Posición</h3><div class="quality-list"><div><span>Q1</span><b><?=format_num($q1,2)?> min</b></div><div><span>Q2</span><b><?=format_num($q2,2)?> min</b></div><div><span>Q3 / P90</span><b><?=format_num($q3,2)?> / <?=format_num($p90,2)?> min</b></div></div></div>
 </div>
 
-<h2 class="section-title numbered"><span>4</span>Gráficos para entender la distribución</h2>
+<h2 class="section-title numbered"><span>3</span>Gráficos</h2>
 <div class="grid cols-2 quality-charts">
     <div class="card"><h3 class="panel-title">Histograma</h3><p class="panel-sub">Frecuencia de tiempos agrupados por intervalos.</p><?=svg_histogram($intervals)?></div>
     <div class="card"><h3 class="panel-title">Polígono de frecuencias</h3><p class="panel-sub">Tendencia de la distribución de frecuencias.</p><?=svg_polygon($intervals)?></div>
@@ -263,41 +230,31 @@ if ($useExample) $raw = $example;
     <div class="card"><h3 class="panel-title">Ojiva</h3><p class="panel-sub">Frecuencia acumulada por intervalo.</p><?=svg_ogive($intervals,$n)?></div>
 </div>
 
-<h2 class="section-title numbered"><span>5</span>Validación final de la muestra</h2>
+<h2 class="section-title numbered"><span>4</span>Análisis y validación</h2>
 <div class="grid cols-2 quality-validation">
     <div class="card">
-        <h3 class="panel-title">¿Los datos están completos y son válidos?</h3>
+        <h3 class="panel-title">Validación de datos</h3>
         <div class="quality-checks">
-            <div class="<?=$neg===0?'ok':'bad'?>"><b><?=$neg===0?'✓':'!'?></b><span>Tiempos negativos encontrados</span><strong><?=$neg?></strong></div>
-            <div class="<?=$over60===0?'ok':'bad'?>"><b><?=$over60===0?'✓':'!'?></b><span>Tiempos mayores a 60 minutos</span><strong><?=$over60?></strong></div>
-            <div class="<?=!$invalid?'ok':'bad'?>"><b><?=!$invalid?'✓':'!'?></b><span>Datos que no son números</span><strong><?=count($invalid)?></strong></div>
-            <div class="<?=$n===30?'ok':'warn'?>"><b><?=$n===30?'✓':'!'?></b><span>Registros cargados de los 30 esperados</span><strong><?=$n?> / 30</strong></div>
+            <div class="<?=$neg===0?'ok':'bad'?>"><b><?=$neg===0?'✓':'!'?></b><span>Valores negativos</span><strong><?=$neg?></strong></div>
+            <div class="<?=$over60===0?'ok':'bad'?>"><b><?=$over60===0?'✓':'!'?></b><span>Tiempos mayores a 60 min</span><strong><?=$over60?></strong></div>
+            <div class="<?=!$invalid?'ok':'bad'?>"><b><?=!$invalid?'✓':'!'?></b><span>Valores no numéricos</span><strong><?=count($invalid)?></strong></div>
+            <div class="<?=$n===30?'ok':'warn'?>"><b><?=$n===30?'✓':'!'?></b><span>Tamaño de muestra esperado</span><strong><?=$n?> / 30</strong></div>
         </div>
     </div>
     <div class="card">
-        <h3 class="panel-title">¿Qué significa el resultado?</h3>
+        <h3 class="panel-title">Lectura de calidad</h3>
         <div class="quality-list">
             <div><span>Esperó 15 min o menos</span><b><?=number_format($le15/$n*100,1)?>%</b></div>
             <div><span>Esperó más de 15 min</span><b><?=number_format($over15/$n*100,1)?>%</b></div>
             <div><span>Valores atípicos por IQR</span><b><?=count($outliers)?></b></div>
-            <div><span>Diferencia frente a la medición anterior</span><b><?=($diffPrev>0?'+':'').format_num($diffPrev,2)?> min</b></div>
+            <div><span>Diferencia vs. referencia</span><b><?=($diffPrev>0?'+':'').format_num($diffPrev,2)?> min</b></div>
             <div><span>Meta de mejora (&lt; 9 min)</span><b><?=$meetsTarget?'Cumple':'No cumple'?></b></div>
         </div>
     </div>
 </div>
 
-
-<div class="card quality-decision" style="margin-top:14px">
-    <h3 class="panel-title big">Resultado rápido</h3>
-    <div class="quality-decision-grid">
-        <div><span>Datos válidos</span><b class="<?=$validQuality?'good':'badtext'?>"><?=$validQuality?'Sí':'Revisar'?></b><small>Sin negativos, sin >60 min y sin textos inválidos</small></div>
-        <div><span>Muestra completa</span><b class="<?=$n===30?'good':'warntext'?>"><?=$n===30?'Sí':'No'?></b><small><?=$n?> de 30 registros cargados</small></div>
-        <div><span>Meta de servicio</span><b class="<?=$meetsTarget?'good':'badtext'?>"><?=$meetsTarget?'Cumple':'No cumple'?></b><small>Promedio menor a 9 minutos</small></div>
-    </div>
-</div>
-
 <div class="card quality-conclusion" style="margin-top:14px">
-    <h3 class="panel-title big">Conclusión automática</h3>
+    <h3 class="panel-title big">Resultado de la validación</h3>
     <p><?php
         $shape = $mean > $median + 0.01 ? 'La distribución presenta tendencia hacia la derecha, ya que la media es mayor que la mediana.' : ($mean < $median - 0.01 ? 'La distribución presenta tendencia hacia la izquierda, ya que la media es menor que la mediana.' : 'La media y la mediana son similares, por lo que la distribución no muestra una asimetría marcada.');
         echo h($shape.' '.number_format($le15/$n*100,1).'% de los clientes esperó 15 minutos o menos. ');
