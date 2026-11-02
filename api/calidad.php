@@ -128,6 +128,7 @@ $example = '4, 5, 5, 7, 8, 10, 12, 12, 15, 18, 20, 22, 5, 10, 8';
 $raw = isset($_POST['tiempos']) ? trim((string)$_POST['tiempos']) : '';
 $previousAvg = isset($_POST['promedio_anterior']) && $_POST['promedio_anterior'] !== '' ? (float)$_POST['promedio_anterior'] : 11.5;
 $useExample = isset($_POST['usar_ejemplo']);
+$qualityTarget = 9.0;
 if ($useExample) $raw = $example;
 [$values,$invalid] = $raw !== '' ? parse_waiting_values($raw) : [[],[]];
 
@@ -154,13 +155,13 @@ if ($useExample) $raw = $example;
             <button class="btn secondary" type="submit" name="usar_ejemplo" value="1">Cargar ejemplo de 15 datos</button>
         </div>
     </form>
-    <p class="caption">El ejemplo corresponde a los 15 valores mostrados en la guía. Para la validación completa deben cargarse los 30 tiempos reales de la muestra.</p>
+    <p class="caption">El ejemplo corresponde a los 15 valores mostrados en la guía. Para la validación completa deben cargarse los 30 tiempos reales de la muestra. Según la actividad, la muestra se considera de tipo aleatorio simple.</p>
 </div>
 
 <?php if(!$values): ?>
     <div class="empty" style="margin-top:16px"><strong>Ingresa una muestra para comenzar</strong><p>El módulo calculará medidas estadísticas, tablas de frecuencia, gráficos y validaciones automáticamente.</p></div>
 <?php else:
-    $n=count($values);$mean=stat_mean($values);$median=stat_median($values);$modes=stat_mode($values);$var=stat_variance_sample($values);$sd=stat_sd_sample($values);$range=max($values)-min($values);$cv=($mean&&$sd!==null)?($sd/$mean*100):null;[$q1,$q2,$q3]=stat_quartiles($values);$p90=stat_percentile_nearest($values,.90);$freq=exact_frequencies($values);$intervals=grouped_intervals($values);$neg=count(array_filter($values,fn($x)=>$x<0));$over60=count(array_filter($values,fn($x)=>$x>60));$validQuality=$neg===0&&$over60===0&&!$invalid;$le15=count(array_filter($values,fn($x)=>$x<=15));$over15=$n-$le15;$diffPrev=$mean-$previousAvg;$iqr=$q3-$q1;$lowFence=$q1-1.5*$iqr;$highFence=$q3+1.5*$iqr;$outliers=array_values(array_filter($values,fn($x)=>$x<$lowFence||$x>$highFence));
+    $n=count($values);$mean=stat_mean($values);$median=stat_median($values);$modes=stat_mode($values);$var=stat_variance_sample($values);$sd=stat_sd_sample($values);$range=max($values)-min($values);$cv=($mean&&$sd!==null)?($sd/$mean*100):null;[$q1,$q2,$q3]=stat_quartiles($values);$p90=stat_percentile_nearest($values,.90);$freq=exact_frequencies($values);$intervals=grouped_intervals($values);$neg=count(array_filter($values,fn($x)=>$x<0));$over60=count(array_filter($values,fn($x)=>$x>60));$validQuality=$neg===0&&$over60===0&&!$invalid;$le15=count(array_filter($values,fn($x)=>$x<=15));$over15=$n-$le15;$diffPrev=$mean-$previousAvg;$iqr=$q3-$q1;$lowFence=$q1-1.5*$iqr;$highFence=$q3+1.5*$iqr;$outliers=array_values(array_filter($values,fn($x)=>$x<$lowFence||$x>$highFence));$meetsTarget=$mean<$qualityTarget;
 ?>
 
 <div class="summary-strip quality-summary">
@@ -168,6 +169,29 @@ if ($useExample) $raw = $example;
     <div><span>Media</span><b><?=format_num($mean,2)?> min</b><small>Tiempo promedio</small></div>
     <div><span>Mediana</span><b><?=format_num($median,2)?> min</b><small>50% de los casos</small></div>
     <div><span>Desviación estándar</span><b><?=format_num($sd,2)?> min</b><small>Dispersión de la muestra</small></div>
+</div>
+
+<div class="card quality-goal-card" style="margin-top:14px">
+    <div class="cross-title">
+        <div>
+            <h3 class="panel-title big">Meta de mejora del servicio</h3>
+            <p class="panel-sub">La actividad establece como acción de seguimiento volver a medir la muestra y verificar si el promedio baja a menos de 9 minutos.</p>
+        </div>
+        <span class="badge <?=$meetsTarget?'green':'gray'?>"><?=$meetsTarget?'CUMPLE':'NO CUMPLE'?></span>
+    </div>
+    <div class="summary-strip quality-goal-summary">
+        <div><span>Meta</span><b>&lt; <?=format_num($qualityTarget,0)?> min</b><small>Promedio esperado</small></div>
+        <div><span>Promedio actual</span><b><?=format_num($mean,2)?> min</b><small>Resultado de la muestra</small></div>
+        <div><span>Diferencia respecto a la meta</span><b><?=format_num($mean-$qualityTarget,2)?> min</b><small><?=$meetsTarget?'Por debajo del límite':'Por encima del límite'?></small></div>
+        <div><span>Estado</span><b><?=$meetsTarget?'Cumple':'No cumple'?></b><small>Validación de la meta</small></div>
+    </div>
+    <div class="alert <?=$meetsTarget?'ok':'info'?>" style="margin-top:12px">
+        <?php if($meetsTarget): ?>
+            El promedio actual es menor a 9 minutos. La meta de mejora planteada en la actividad se considera alcanzada para esta muestra.
+        <?php else: ?>
+            El promedio actual todavía no baja de 9 minutos. Se recomienda reforzar la atención en horas pico y volver a tomar una muestra de 30 clientes después de aplicar la mejora.
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php if($n!==30): ?>
@@ -224,6 +248,7 @@ if ($useExample) $raw = $example;
             <div><span>Esperó más de 15 min</span><b><?=number_format($over15/$n*100,1)?>%</b></div>
             <div><span>Valores atípicos por IQR</span><b><?=count($outliers)?></b></div>
             <div><span>Diferencia vs. referencia</span><b><?=($diffPrev>0?'+':'').format_num($diffPrev,2)?> min</b></div>
+            <div><span>Meta de mejora (&lt; 9 min)</span><b><?=$meetsTarget?'Cumple':'No cumple'?></b></div>
         </div>
     </div>
 </div>
@@ -235,6 +260,7 @@ if ($useExample) $raw = $example;
         echo h($shape.' '.number_format($le15/$n*100,1).'% de los clientes esperó 15 minutos o menos. ');
         if($cv!==null) echo h('El coeficiente de variación es '.format_num($cv,1).'%, lo que '.($cv>30?'indica una variabilidad elevada en los tiempos de espera.':'muestra una variabilidad moderada o baja en los tiempos de espera.').' ');
         if($outliers) echo h('Se identificaron '.count($outliers).' posible(s) valor(es) atípico(s): '.implode(', ',array_map(fn($x)=>format_num($x,1),$outliers)).' min. ');
+        echo h($meetsTarget ? 'La muestra cumple la meta de mejora de mantener el promedio por debajo de 9 minutos. ' : 'La muestra todavía no cumple la meta de mejora de reducir el promedio a menos de 9 minutos. ');
         echo $validQuality ? 'Los registros analizados cumplen las reglas básicas de validación de rango.' : 'Se detectaron registros que requieren revisión antes de validar la muestra.';
     ?></p>
 </div>
